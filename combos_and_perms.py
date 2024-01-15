@@ -120,18 +120,16 @@
             There will be 'k' recursive calls.
             There will be k values per terminated recursion (base case reached).
 """
-def chooseCombos(values, choice, result = None, combo = None, firstVal = None):
+def chooseCombos(values, choiceCnt, result = None, combo = None, startIdx = None):
     if None == result: result = []
     if None == combo: combo = []
-    if None == firstVal: firstVal = 0
-    if 0 == choice:
-        result.append(combo[:])
+    if None == startIdx: startIdx = 0
+    if 0 == choiceCnt:
+        result += [combo[:]]
     else:
-        for valIdx in range(firstVal, len(values)):
-            if len(values) - valIdx < choice:
-                break
-            combo.append(values[valIdx])
-            chooseCombos(values, choice - 1, result, combo, valIdx + 1)
+        for idx in range(startIdx, len(values)):
+            combo += values[idx]
+            chooseCombos(values, choiceCnt - 1, result, combo, idx + 1)
             combo.pop()
     return result
 
@@ -300,20 +298,28 @@ def permute(values, choice, perm = None, result = None, valuesSize = None):
     if None == perm: perm = []
     if None == result: result = []
     if None == valuesSize: valuesSize = len(values)
-    if 0 == valuesSize or len(values) - valuesSize == choice:
+    if 0 == choice:
         result.append(perm[:])
     else:
         for idx in range(valuesSize):
-            if len(values) - valuesSize > choice:
-                result.append(perm[:])
-                break
             perm.append(values[idx])
             values[idx], values[valuesSize - 1] = values[valuesSize - 1], values[idx] # Remove value from values.
-            permute(values, choice, perm, result, valuesSize - 1)
+            permute(values, choice - 1, perm, result, valuesSize - 1)
             values[idx], values[valuesSize - 1] = values[valuesSize - 1], values[idx] # Restore value in values.
             perm.pop()
     return result
 
+def simplePermute(values, choice, result = None, perm = None):
+    if None == result: result = []
+    if None == perm: perm = []
+    if 0 == choice:
+        result += [perm[:]]
+    else:
+        for idx in range(len(values)):
+            perm += values[idx]
+            simplePermute(values[:idx] + values[idx + 1:], choice - 1, result, perm)
+            perm.pop()
+    return result
 
 if __name__ == '__main__':
     values = ['a', 'b', 'c'] 
@@ -326,11 +332,24 @@ if __name__ == '__main__':
         print("]")
 
     print("")
+    print("----------------------------------------------------------------------")
+    print("")
 
     for choice in range(len(values) + 1):
         print("{} perm {}:".format(values, choice))
         print("[")
         for perm in permute(values, choice):
+            print("  {}".format(perm))
+        print("]")
+
+    print("")
+    print("----------------------------------------------------------------------")
+    print("")
+
+    for choice in range(len(values) + 1):
+        print("{} perm {}:".format(values, choice))
+        print("[")
+        for perm in simplePermute(values, choice):
             print("  {}".format(perm))
         print("]")
 
