@@ -133,6 +133,39 @@ def chooseCombos(values, choiceCnt, result = None, combo = None, startIdx = None
             combo.pop()
     return result
 
+# This class calculates combinations one at a time rather than an entire set.
+class Combo:
+    def __init__(self, values):
+        self.values = values
+        self._resetSequence()
+    
+    def _resetSequence(self):
+        self.valueIdx = len(values) - 1
+        self.combs = []
+        self.rolledOver = False
+    
+    def next(self): # Return the next combination in the sequence.
+        self.rolledOver = False
+        if -1 == self.valueIdx:
+            return []
+        value = self.values[self.valueIdx]
+        result = []
+        for combIdx in range(len(self.combs)):
+            newCombo = [value] + self.combs[combIdx]
+            self.combs.append(newCombo)
+            result.append(newCombo)
+        newCombo = [value]
+        self.combs.append(newCombo)
+        result.append(newCombo)
+        self.valueIdx -= 1
+        if -1 == self.valueIdx:
+            self._resetSequence()
+            self.rolledOver = True
+        return result
+
+    def rollover(self):
+        return self.rolledOver
+
 """
     Permutations:
 
@@ -330,6 +363,18 @@ if __name__ == '__main__':
         for combo in chooseCombos(values, choice):
             print("  {}".format(combo))
         print("]")
+
+    print("")
+    print("----------------------------------------------------------------------")
+    print("")
+
+    print("Combinations of {} (object):".format(values))
+    print("[");
+    combos = Combo(values)
+    while not combos.rollover():
+        for combo in combos.next():
+            print("  {}".format(combo))
+    print("]");
 
     print("")
     print("----------------------------------------------------------------------")
